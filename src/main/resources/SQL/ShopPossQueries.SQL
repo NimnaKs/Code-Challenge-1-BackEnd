@@ -14,7 +14,8 @@ CREATE TABLE Item (
                       item_code VARCHAR(50) PRIMARY KEY,
                       item_name VARCHAR(255),
                       price DOUBLE,
-                      qty_on_hand INT
+                      qty_on_hand INT,
+                      imageFile BLOB
 );
 
 CREATE TABLE Orders (

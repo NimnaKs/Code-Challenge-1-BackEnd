@@ -1,11 +1,14 @@
 package lk.ijse.codingchallengejavaee.api;
 
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebInitParam;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lk.ijse.codingchallengejavaee.db.ItemDBProcess;
+import lk.ijse.codingchallengejavaee.dto.ItemDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,8 +18,9 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
-@WebServlet(name = "item",urlPatterns = "/item")
+@WebServlet(name = "item", urlPatterns = "/item")
 public class Item extends HttpServlet {
 
     final static Logger logger = LoggerFactory.getLogger(Item.class);
@@ -34,22 +38,113 @@ public class Item extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-    }
-
-    @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-    }
-
-    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        var action = req.getParameter("action");
 
+        if ("getAllItems".equals(action)) {
+            getAllItems(req, resp);
+        } else if ("getItemCode".equals(action)) {
+            generateItemCode(req, resp);
+        } else if ("getItem".equals(action)) {
+            var itemCode = req.getParameter("itemCode");
+            getItem(req, resp, itemCode);
+        } else {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid action parameter");
+        }
+    }
+
+    private void getItem(HttpServletRequest req, HttpServletResponse resp, String itemCode) {
+        ItemDBProcess itemDBProcess = new ItemDBProcess();
+        ItemDTO itemDTO = itemDBProcess.getItem(itemCode,connection);
+        Jsonb jsonb = JsonbBuilder.create();
+        try {
+            var json = jsonb.toJson(itemDTO);
+            resp.setContentType("application/json");
+            resp.getWriter().write(json);
+        } catch (IOException e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void generateItemCode(HttpServletRequest req, HttpServletResponse resp) {
+        ItemDBProcess itemDBProcess = new ItemDBProcess();
+        var lastItemCode = itemDBProcess.generateItemCode(connection);
+        Jsonb jsonb = JsonbBuilder.create();
+        try {
+            String json = jsonb.toJson(lastItemCode);
+            resp.setContentType("application/json");
+            resp.getWriter().write(json);
+        } catch (IOException e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void getAllItems(HttpServletRequest req, HttpServletResponse resp) {
+        ItemDBProcess itemDBProcess = new ItemDBProcess();
+        ArrayList<ItemDTO> allItems = itemDBProcess.getAllItems(connection);
+
+        Jsonb jsonb = JsonbBuilder.create();
+
+        try {
+            var json = jsonb.toJson(allItems);
+            resp.setContentType("application/json");
+            resp.getWriter().write(json);
+        } catch (IOException e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (req.getContentType() != null && req.getContentType().toLowerCase().startsWith("application/json")) {
+            Jsonb jsonb = JsonbBuilder.create();
+            ItemDTO itemDTO = jsonb.fromJson(req.getReader(), ItemDTO.class);
+            ItemDBProcess itemDBProcess = new ItemDBProcess();
+            boolean result = itemDBProcess.saveItem(itemDTO, connection);
+            if (result) {
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.getWriter().write("Item information saved successfully.");
+            } else {
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to save item information.");
+            }
+        } else {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        }
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (req.getContentType() != null && req.getContentType().toLowerCase().startsWith("application/json")) {
+            Jsonb jsonb = JsonbBuilder.create();
+            ItemDTO itemDTO = jsonb.fromJson(req.getReader(), ItemDTO.class);
+            ItemDBProcess itemDBProcess = new ItemDBProcess();
+            boolean result = itemDBProcess.updateItem(itemDTO, connection);
+            if (result) {
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.getWriter().write("Item information updated successfully.");
+            } else {
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to update item information.");
+            }
+        } else {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        }
+    }
 
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        var itemCode = req.getParameter("itemCode");
+        ItemDBProcess itemDBProcess = new ItemDBProcess();
+        boolean result = itemDBProcess.deleteItem(itemCode, connection);
+        if (result) {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getWriter().write("Item information deleted successfully.");
+        } else {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to delete item information.");
+        }
     }
 }
+
+

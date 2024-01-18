@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.File;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -11,6 +13,6 @@ import lombok.NoArgsConstructor;
 public class ItemDTO {
     private String item_code;
     private String item_name;
-    private double price;
     private int qty_on_hand;
+    private double price;
 }
