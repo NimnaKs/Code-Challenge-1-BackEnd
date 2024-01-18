@@ -7,20 +7,28 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 
-@WebServlet(name = "orderDetails",urlPatterns = "/orderDetails",
-        initParams = {
-                @WebInitParam(name = "db-user",value = "root"),
-                @WebInitParam(name = "db-pw",value = "ijse@200108"),
-                @WebInitParam(name = "db-url",value = "jdbc:mysql://localhost:3306/poss?createDatabaseIfNotExist=true"),
-                @WebInitParam(name = "db-class",value = "com.mysql.cj.jdbc.Driver")
-        }
-)
+@WebServlet(name = "orderDetails",urlPatterns = "/orderDetails")
 public class OrderDetails extends HttpServlet {
+
+    Connection connection;
 
     @Override
     public void init() throws ServletException {
+
+        try {
+            var ctx = new InitialContext();
+            DataSource pool = (DataSource) ctx.lookup("java:comp/env/jdbc/shopPoss");
+            this.connection = pool.getConnection();
+        } catch (NamingException | SQLException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
