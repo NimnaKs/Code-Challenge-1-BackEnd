@@ -59,25 +59,25 @@ mvn clean install
 
   -**Enter SQL Script:**
 
-    -Execute the SQL script provided in the SQL folder to initialize the database.
+    Execute the SQL script provided in the SQL folder to initialize the database.
     
   -**Database Configuration:**
 
-    - Configure your database username and password in the context.xml configuration file.
+    Configure your database username and password in the context.xml configuration file.
 
   -**Start the Application:**
 
-    - Deploy the application on your Java EE server.
+    Deploy the application on your Java EE server.
   
   -**Access the API:**
 
-    - The API will be accessible at http://localhost:your-port/api.
+    The API will be accessible at http://localhost:your-port/api.
 
 -**Note:**
 
-- Ensure you have Java and Java EE installed.
-- Adjust the database configuration based on your setup.
-- Now you should have the backend up and running locally. For any additional details, refer to the provided documentation.
+Ensure you have Java and Java EE installed.
+Adjust the database configuration based on your setup.
+Now you should have the backend up and running locally. For any additional details, refer to the provided documentation.
 
 ## Project Structure
 
