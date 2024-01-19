@@ -32,7 +32,6 @@ public class OrderDBProcess {
     }
 
     public boolean saveOrder(CombinedOrderDTO combinedOrderDTO, Connection connection) {
-
         try {
             connection.setAutoCommit(false);
 
@@ -44,8 +43,8 @@ public class OrderDBProcess {
                     if (isSavedOrderDetails) {
                         boolean isSavedItemDetails = new ItemDBProcess().updateItemOrder(orderDetailsDTO, connection);
 
-                        if (isSavedItemDetails) {
-                            return false;
+                        if (!isSavedItemDetails) {
+                           return false;
                         }
                     }else{
                         return false;
@@ -71,11 +70,10 @@ public class OrderDBProcess {
                 throw new RuntimeException(e);
             }
         }
-
     }
 
-    private boolean save(OrderDTO orderDTO, Connection connection) {
-        try {
+    private boolean save(OrderDTO orderDTO, Connection connection) throws SQLException {
+
             String save_item = "INSERT INTO Orders (order_date, order_id, customer_id, total, discount, cash) VALUES  (?,?,?,?,?,?);";
 
             var preparedStatement = connection.prepareStatement(save_item);
@@ -88,9 +86,7 @@ public class OrderDBProcess {
 
             return preparedStatement.executeUpdate() != 0;
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+
     }
 
     public boolean delete(String orderId, Connection connection) {
@@ -131,15 +127,11 @@ public class OrderDBProcess {
         }
     }
 
-    private boolean deleteOrder(String orderId, Connection connection) {
+    private boolean deleteOrder(String orderId, Connection connection) throws SQLException {
         String deleteOrderQuery = "DELETE FROM Orders WHERE order_id = ?;";
-        try {
             PreparedStatement deleteOrderStatement = connection.prepareStatement(deleteOrderQuery);
             deleteOrderStatement.setString(1, orderId);
             return deleteOrderStatement.executeUpdate() != 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public CombinedOrderDTO getOrder(String orderId, Connection connection) {

@@ -4,41 +4,37 @@ import lk.ijse.codingchallengejavaee.dto.OrderDetailsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class OrderDetailsDBProcess {
 
     final static Logger logger = LoggerFactory.getLogger(OrderDetailsDBProcess.class);
 
-    public boolean saveOrderDetails(OrderDetailsDTO orderDetailsDTO, Connection connection) {
+    public boolean saveOrderDetails(OrderDetailsDTO orderDetailsDTO, Connection connection) throws SQLException {
 
-        try {
+        String save_item = "INSERT INTO OrderDetails (order_id, item_id, price, qty) VALUES  (?,?,?,?);";
 
-            String save_item = "INSERT INTO OrderDetails (order_id, item_id, price, qty) VALUES  (?,?,?,?);";
+        var preparedStatement = connection.prepareStatement(save_item);
+        preparedStatement.setString(1, orderDetailsDTO.getOrder_id());
+        preparedStatement.setString(2, orderDetailsDTO.getItem_id());
+        preparedStatement.setDouble(3, orderDetailsDTO.getPrice());
+        preparedStatement.setInt(4, orderDetailsDTO.getQty());
 
-            var preparedStatement = connection.prepareStatement(save_item);
-            preparedStatement.setString(1,  orderDetailsDTO.getOrder_id());
-            preparedStatement.setString(2, orderDetailsDTO.getItem_id());
-            preparedStatement.setDouble(3,orderDetailsDTO.getPrice());
-            preparedStatement.setInt(4,orderDetailsDTO.getQty());
+        return preparedStatement.executeUpdate() != 0;
 
-            return preparedStatement.executeUpdate() != 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 
-    public boolean deleteOrderDetails(String orderId, Connection connection) {
+    public boolean deleteOrderDetails(String orderId, Connection connection) throws SQLException {
         String deleteOrderDetailsQuery = "DELETE FROM OrderDetails WHERE order_id = ?;";
-        try {
-            PreparedStatement deleteOrderDetailsStatement = connection.prepareStatement(deleteOrderDetailsQuery);
-            deleteOrderDetailsStatement.setString(1, orderId);
-            return deleteOrderDetailsStatement.executeUpdate() != 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+
+        PreparedStatement deleteOrderDetailsStatement = connection.prepareStatement(deleteOrderDetailsQuery);
+        deleteOrderDetailsStatement.setString(1, orderId);
+        return deleteOrderDetailsStatement.executeUpdate() != 0;
+
     }
 
     public ArrayList<OrderDetailsDTO> getOrderDetails(String orderId, Connection connection) {

@@ -5,7 +5,10 @@ import lk.ijse.codingchallengejavaee.dto.OrderDetailsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ItemDBProcess {
@@ -140,15 +143,13 @@ public class ItemDBProcess {
         }
     }
 
-    public boolean updateItemOrder(OrderDetailsDTO orderDetailsDTO, Connection connection) {
+    public boolean updateItemOrder(OrderDetailsDTO orderDetailsDTO, Connection connection) throws SQLException {
         String updateItemQtyQuery = "UPDATE Item SET qty_on_hand = qty_on_hand - ? WHERE item_code = ?;";
-        try {
-            PreparedStatement updateItemQtyStatement = connection.prepareStatement(updateItemQtyQuery);
-            updateItemQtyStatement.setInt(1, orderDetailsDTO.getQty());
-            updateItemQtyStatement.setString(2, orderDetailsDTO.getItem_id());
-            return updateItemQtyStatement.executeUpdate() != 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+
+        PreparedStatement updateItemQtyStatement = connection.prepareStatement(updateItemQtyQuery);
+        updateItemQtyStatement.setInt(1, orderDetailsDTO.getQty());
+        updateItemQtyStatement.setString(2, orderDetailsDTO.getItem_id());
+        return updateItemQtyStatement.executeUpdate() != 0;
+
     }
 }
