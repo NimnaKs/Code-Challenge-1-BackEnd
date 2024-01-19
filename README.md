@@ -40,11 +40,11 @@ Ensure you have the following prerequisites installed before running the project
 
 - [Logback](http://logback.qos.ch/): Logback is used for logging. You can find more about Logback [here](http://logback.qos.ch/).
 
+```
 ## Getting Started
 
 Follow these steps to set up and run the project locally:
 
-bash
 # Clone the repository
 git clone https://github.com/NimnaKs/Code-Challenge-1-BackEnd.git
 
@@ -52,7 +52,8 @@ git clone https://github.com/NimnaKs/Code-Challenge-1-BackEnd.git
 cd Code-Challenge-1-BackEnd
 
 # Build and run the project
-mvn clean install 
+mvn clean install
+```
 
 # Continue with the following steps:
 
