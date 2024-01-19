@@ -46,14 +46,32 @@ public class Customer extends HttpServlet {
         if("getAllCustomers".equals(action)){
             getAllCustomers(req,resp);
         } else if ("getCustomerId".equals(action)) {
-            getCustomerId(req,resp);
-        } else if ("getCustomer".equals(action)) {
+            getCustomerId(req, resp);
+        } else if ("getAllCustomerIds".equals(action)) {
+            getAllCustomerIds(req, resp);
+        }else if ("getCustomer".equals(action)) {
             var studentId = req.getParameter("customerId");
             getCustomer(req,resp,studentId);
         }else{
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid action parameter");
         }
         
+    }
+
+    private void getAllCustomerIds(HttpServletRequest req, HttpServletResponse resp) {
+        CustomerDBProcess customerDBProcess = new CustomerDBProcess();
+        ArrayList<String> allCustomerIds = customerDBProcess.getAllCustomerIds(connection);
+
+        Jsonb jsonb = JsonbBuilder.create();
+
+        try {
+            var json = jsonb.toJson(allCustomerIds);
+            resp.setContentType("application/json");
+            resp.getWriter().write(json);
+        } catch (IOException e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new RuntimeException(e);
+        }
     }
 
     private void getCustomer(HttpServletRequest req, HttpServletResponse resp, String custId) {

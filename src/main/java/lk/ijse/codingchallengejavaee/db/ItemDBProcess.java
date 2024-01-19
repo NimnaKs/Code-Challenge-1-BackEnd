@@ -120,4 +120,23 @@ public class ItemDBProcess {
         }
     }
 
+    public ArrayList<String> getAllItemIds(Connection connection) {
+        try {
+            String get_all = "SELECT item_code FROM Item;";
+            var preparedStatement = connection.prepareStatement(get_all);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            ArrayList<String> itemIds = new ArrayList<>();
+
+            while (resultSet.next()) {
+                itemIds.add(resultSet.getString("item_code"));
+            }
+
+            return itemIds;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

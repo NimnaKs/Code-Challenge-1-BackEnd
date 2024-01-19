@@ -48,8 +48,27 @@ public class Item extends HttpServlet {
         } else if ("getItem".equals(action)) {
             var itemCode = req.getParameter("itemCode");
             getItem(req, resp, itemCode);
-        } else {
+        } else if ("getItemIds".equals(action)) {
+            getAllItemIds(req, resp);
+        }else {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid action parameter");
+        }
+    }
+
+    private void getAllItemIds(HttpServletRequest req, HttpServletResponse resp) {
+
+        ItemDBProcess itemDBProcess = new ItemDBProcess();
+        ArrayList<String> allItems = itemDBProcess.getAllItemIds(connection);
+
+        Jsonb jsonb = JsonbBuilder.create();
+
+        try {
+            var json = jsonb.toJson(allItems);
+            resp.setContentType("application/json");
+            resp.getWriter().write(json);
+        } catch (IOException e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new RuntimeException(e);
         }
     }
 

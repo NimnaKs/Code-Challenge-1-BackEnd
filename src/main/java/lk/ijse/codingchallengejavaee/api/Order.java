@@ -1,11 +1,15 @@
 package lk.ijse.codingchallengejavaee.api;
 
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebInitParam;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lk.ijse.codingchallengejavaee.db.ItemDBProcess;
+import lk.ijse.codingchallengejavaee.db.OrderDBProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +50,38 @@ public class Order extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+        var action = req.getParameter("action");
+
+        if ("getAllOrders".equals(action)) {
+            getAllOrders(req, resp);
+        } else if ("getOrderId".equals(action)) {
+            generateOrderId(req, resp);
+        } else if ("getOrder".equals(action)) {
+            var orderId = req.getParameter("orderId");
+            getOrder(req, resp, orderId);
+        } else {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid action parameter");
+        }
+    }
+
+    private void getOrder(HttpServletRequest req, HttpServletResponse resp, String orderId) {
+    }
+
+    private void generateOrderId(HttpServletRequest req, HttpServletResponse resp) {
+        OrderDBProcess orderDBProcess = new OrderDBProcess();
+        var orderId = orderDBProcess.generateOrderId(connection);
+        Jsonb jsonb = JsonbBuilder.create();
+        try {
+            String json = jsonb.toJson(orderId);
+            resp.setContentType("application/json");
+            resp.getWriter().write(json);
+        } catch (IOException e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void getAllOrders(HttpServletRequest req, HttpServletResponse resp) {
     }
 
     @Override

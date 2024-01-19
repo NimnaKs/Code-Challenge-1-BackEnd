@@ -125,4 +125,24 @@ public class CustomerDBProcess {
         }
         return null;
     }
+
+    public ArrayList<String> getAllCustomerIds(Connection connection) {
+        try {
+            String get_all = "SELECT customerId FROM Customer;";
+            var preparedStatement = connection.prepareStatement(get_all);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            ArrayList<String> customerIds = new ArrayList<>();
+
+            while (resultSet.next()) {
+                customerIds.add(resultSet.getString("customerId"));
+            }
+
+            return customerIds;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
