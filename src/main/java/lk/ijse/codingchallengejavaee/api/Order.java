@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lk.ijse.codingchallengejavaee.db.ItemDBProcess;
 import lk.ijse.codingchallengejavaee.db.OrderDBProcess;
+import lk.ijse.codingchallengejavaee.dto.CombinedOrderDTO;
+import lk.ijse.codingchallengejavaee.dto.ItemDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +41,21 @@ public class Order extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        if (req.getContentType() != null && req.getContentType().toLowerCase().startsWith("application/json")) {
+            Jsonb jsonb = JsonbBuilder.create();
+            CombinedOrderDTO combinedOrderDTO = jsonb.fromJson(req.getReader(), CombinedOrderDTO.class);
+            OrderDBProcess orderDBProcess = new OrderDBProcess();
+            boolean result = orderDBProcess.saveOrder(combinedOrderDTO, connection);
+            if (result) {
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.getWriter().write("Order information saved successfully.");
+            } else {
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to save Order information.");
+            }
+        } else {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        }
 
     }
 

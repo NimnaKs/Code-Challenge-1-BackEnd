@@ -1,10 +1,10 @@
 package lk.ijse.codingchallengejavaee.db;
 
 import lk.ijse.codingchallengejavaee.dto.ItemDTO;
+import lk.ijse.codingchallengejavaee.dto.OrderDetailsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -135,6 +135,18 @@ public class ItemDBProcess {
 
             return itemIds;
 
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean updateItemOrder(OrderDetailsDTO orderDetailsDTO, Connection connection) {
+        String updateItemQtyQuery = "UPDATE Item SET qty_on_hand = qty_on_hand - ? WHERE item_code = ?;";
+        try {
+            PreparedStatement updateItemQtyStatement = connection.prepareStatement(updateItemQtyQuery);
+            updateItemQtyStatement.setInt(1, orderDetailsDTO.getQty());
+            updateItemQtyStatement.setString(2, orderDetailsDTO.getItem_id());
+            return updateItemQtyStatement.executeUpdate() != 0;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
