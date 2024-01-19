@@ -44,14 +44,18 @@ Ensure you have the following prerequisites installed before running the project
 
 -**Follow these steps to set up and run the project locally:**
 
-```
 # Clone the repository
+```
 git clone https://github.com/NimnaKs/Code-Challenge-1-BackEnd.git
+```
 
 # Navigate to the project directory
+```
 cd Code-Challenge-1-BackEnd
+```
 
 # Build and run the project
+```
 mvn clean install
 ```
 
@@ -59,19 +63,19 @@ mvn clean install
 
   -**Enter SQL Script:**
 
-    Execute the SQL script provided in the SQL folder to initialize the database.
+Execute the SQL script provided in the SQL folder to initialize the database.
     
   -**Database Configuration:**
 
-    Configure your database username and password in the context.xml configuration file.
+Configure your database username and password in the context.xml configuration file.
 
   -**Start the Application:**
 
-    Deploy the application on your Java EE server.
+Deploy the application on your Java EE server.
   
   -**Access the API:**
 
-    The API will be accessible at http://localhost:your-port/api.
+The API will be accessible at http://localhost:your-port/api.
 
 -**Note:**
 
