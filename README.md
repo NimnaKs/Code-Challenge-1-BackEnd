@@ -42,7 +42,7 @@ Ensure you have the following prerequisites installed before running the project
 
 ## Getting Started
 
--**Follow these steps to set up and run the project locally:**
+**Follow these steps to set up and run the project locally:**
 
 # Clone the repository
 ```
@@ -59,25 +59,25 @@ cd Code-Challenge-1-BackEnd
 mvn clean install
 ```
 
--**Continue with the following steps:**
+**Continue with the following steps:**
 
-  -**Enter SQL Script:**
+  **Enter SQL Script:**
 
 Execute the SQL script provided in the SQL folder to initialize the database.
     
-  -**Database Configuration:**
+  **Database Configuration:**
 
 Configure your database username and password in the context.xml configuration file.
 
-  -**Start the Application:**
+  **Start the Application:**
 
 Deploy the application on your Java EE server.
   
-  -**Access the API:**
+  **Access the API:**
 
 The API will be accessible at http://localhost:your-port/api.
 
--**Note:**
+**Note:**
 
 Ensure you have Java and Java EE installed.
 Adjust the database configuration based on your setup.
