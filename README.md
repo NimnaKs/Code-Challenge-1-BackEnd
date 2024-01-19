@@ -42,19 +42,19 @@ Ensure you have the following prerequisites installed before running the project
 
 ## Getting Started
 
-**Follow these steps to set up and run the project locally:**
+Follow these steps to set up and run the project locally:
 
-# Clone the repository
+**Clone the repository**
 ```
 git clone https://github.com/NimnaKs/Code-Challenge-1-BackEnd.git
 ```
 
-# Navigate to the project directory
+**Navigate to the project directory**
 ```
 cd Code-Challenge-1-BackEnd
 ```
 
-# Build and run the project
+**Build and run the project**
 ```
 mvn clean install
 ```
@@ -63,25 +63,25 @@ mvn clean install
 
   **Enter SQL Script:**
 
-Execute the SQL script provided in the SQL folder to initialize the database.
+  - Execute the SQL script provided in the SQL folder to initialize the database.
     
   **Database Configuration:**
 
-Configure your database username and password in the context.xml configuration file.
+  - Configure your database username and password in the context.xml configuration file.
 
   **Start the Application:**
 
-Deploy the application on your Java EE server.
+  - Deploy the application on your Java EE server.
   
   **Access the API:**
 
-The API will be accessible at http://localhost:your-port/api.
+  - The API will be accessible at http://localhost:your-port/api.
 
 **Note:**
 
-Ensure you have Java and Java EE installed.
-Adjust the database configuration based on your setup.
-Now you should have the backend up and running locally. For any additional details, refer to the provided documentation.
+ - Ensure you have Java and Java EE installed.
+ - Adjust the database configuration based on your setup.
+ - Now you should have the backend up and running locally. For any additional details, refer to the provided documentation.
 
 ## Project Structure
 
@@ -121,6 +121,37 @@ The project follows a modular structure, organized into packages based on functi
 
 - **test**
   - Placeholder for test-related classes (unit tests, integration tests).
+
+## Configuration
+
+### Database Configuration
+
+1. **Database System:** MySQL
+2. **Schema Initialization:**
+   - Execute the SQL script provided in the [SQL folder](/src/resources/SQL/ShopPossQueries.SQL) to initialize the database.
+
+3. **Database Connection:**
+   - Configure your database username and password in the `src/resources/META-INF/context.xml` file.
+     
+   #### context.xml
+
+    ```
+    xml
+    <!-- context.xml -->
+    <Resource auth="Container" driverClassName="com.mysql.cj.jdbc.Driver"
+        maxActive="20" maxIdle="5" maxWait="10000"
+        name="jdbc/posDB" password="your-db-password" type="javax.sql.DataSource"
+        url="jdbc:mysql://localhost:3306/posdb" username="your-db-username"/>
+    ```
+
+### Application Properties
+
+   - The project uses the `origin` parameters in the `web.xml` file to control Cross-Origin Resource Sharing (CORS). CORS is a security feature implemented by web browsers that restricts web pages from making requests to a different domain than the one that served the web page.
+
+## Api Endpoints
+
+Explore and interact with the API using [Postman](https://www.postman.com/avionics-astronaut-49946802/workspace/javaee-backend-poss/collection/30946779-5b7337a2-5621-48ce-ab63-12fe190b5860?action=share&creator=30946779).
+
     
 
 
