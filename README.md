@@ -40,13 +40,11 @@ Ensure you have the following prerequisites installed before running the project
 
 - [Logback](http://logback.qos.ch/): Logback is used for logging. You can find more about Logback [here](http://logback.qos.ch/).
 
-
-
 ## Getting Started
 
 Follow these steps to set up and run the project locally:
 
-```bash
+bash
 # Clone the repository
 git clone https://github.com/NimnaKs/Code-Challenge-1-BackEnd.git
 
@@ -54,42 +52,72 @@ git clone https://github.com/NimnaKs/Code-Challenge-1-BackEnd.git
 cd Code-Challenge-1-BackEnd
 
 # Build and run the project
-mvn clean install
+mvn clean install 
+
+# Continue with the following steps:
+
+# Enter SQL Script:
+
+- Execute the SQL script provided in the SQL folder to initialize the database.
+Database Configuration:
+
+- Configure your database username and password in the context.xml configuration file.
+
+# Start the Application:
+
+- Deploy the application on your Java EE server.
+  
+# Access the API:
+
+- The API will be accessible at http://localhost:your-port/api.
+
+# Note:
+
+- Ensure you have Java and Java EE installed.
+- Adjust the database configuration based on your setup.
+- Now you should have the backend up and running locally. For any additional details, refer to the provided documentation.
 
 ## Project Structure
 
-/src
-|-- /main
-    |-- /java
-        |-- lk.ijse.codingchallengejavaee
-            |-- /api
-                |-- /Customer
-                |-- /Item
-                |-- /Order
-            |-- /db
-                |-- /CustomerDBProcess
-                |-- /ItemDBProcess
-                |-- /OrderDBProcess
-                |-- /OrderDetailsDBProcess
-            |-- /dto
-                |-- /CustomerDTO
-                |-- /ItemDTO
-                |-- /OrderDTO
-                |-- /OrderDetailsDTO
-                |-- /CombinedOrderDTO
-            |-- /filter
-                |-- /CROSFilter
-                |-- /SecurityFilter
-    |-- /resources
-        |-- /SQL
-            |-- /ShopPossQueries.SQL
-        |-- /logback.xml
-    |-- /webapp
-        |-- /META-INF
-            |-- /context.xml
-        |-- /WEB-INF
-            |-- /web.xml
-|-- /test
+The project follows a modular structure, organized into packages based on functionality.
+
+- **api**
+  - **Customer**: Contains classes related to Customer API.
+  - **Item**: Contains classes related to Item API.
+  - **Order**: Contains classes related to Order API.
+
+- **db**
+  - **CustomerDBProcess**: Database operations related to Customer.
+  - **ItemDBProcess**: Database operations related to Item.
+  - **OrderDBProcess**: Database operations related to Order.
+  - **OrderDetailsDBProcess**: Database operations related to OrderDetails.
+
+- **dto**
+  - **CustomerDTO**: Data Transfer Object for Customer.
+  - **ItemDTO**: Data Transfer Object for Item.
+  - **OrderDTO**: Data Transfer Object for Order.
+  - **OrderDetailsDTO**: Data Transfer Object for OrderDetails.
+  - **CombinedOrderDTO**: Combined DTO for Order and its details.
+
+- **filter**
+  - **CROSFilter**: Cross-Origin Resource Sharing filter.
+  - **SecurityFilter**: Placeholder for security-related filtering.
+
+- **resources**
+  - **SQL**: SQL scripts for initializing the database.
+    - **ShopPossQueries.SQL**: Contains queries for setting up the database.
+  - **logback.xml**: Configuration file for logging.
+
+- **webapp**
+  - **META-INF**: Contains the `context.xml` file for configuring the JNDI data source.
+  - **WEB-INF**: Web application configuration.
+    - **web.xml**: Deployment descriptor for the web application.
+
+- **test**
+  - Placeholder for test-related classes (unit tests, integration tests).
+    
+
+
 
 
 
