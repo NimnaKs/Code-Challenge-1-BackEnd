@@ -150,7 +150,7 @@ The project follows a modular structure, organized into packages based on functi
 
 ## Api Endpoints
 
-Explore and interact with the API using [Postman](https://www.postman.com/avionics-astronaut-49946802/workspace/javaee-backend-poss/collection/30946779-5b7337a2-5621-48ce-ab63-12fe190b5860?action=share&creator=30946779).
+Explore and interact with the API using [Postman](https://www.postman.com/avionics-astronaut-49946802/workspace/javaee-backend-poss/collection/30946779-1ee524ac-bc3e-4d75-af3d-e9063f97837b?action=share&creator=30946779)
 
     
 
