@@ -10,12 +10,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.*;
+import java.util.ArrayList;
+
 public class CustomerDBProcess {
-    final static Logger logger = LoggerFactory.getLogger(CustomerDBProcess.class);
+    private static final Logger logger = LoggerFactory.getLogger(CustomerDBProcess.class);
 
     public String getCustomerId(Connection connection) {
         try {
-
             PreparedStatement preparedStatement = connection.prepareStatement(
                     "SELECT MAX(customerId) as last_customer_id FROM customer"
             );
@@ -27,6 +32,7 @@ public class CustomerDBProcess {
                     : "cust-001";
 
         } catch (SQLException e) {
+            logger.error("Error retrieving customer ID", e);
             throw new RuntimeException(e);
         }
     }
@@ -41,9 +47,16 @@ public class CustomerDBProcess {
             preparedStatement.setString(4, customerDTO.getContact());
             preparedStatement.setString(5, customerDTO.getEmail());
 
-            return preparedStatement.executeUpdate() != 0;
+            boolean result = preparedStatement.executeUpdate() != 0;
+            if (result) {
+                logger.info("Customer information saved successfully: {}", customerDTO.getCustomerId());
+            } else {
+                logger.error("Failed to save customer information: {}", customerDTO.getCustomerId());
+            }
+            return result;
 
         } catch (SQLException e) {
+            logger.error("Error saving customer information", e);
             throw new RuntimeException(e);
         }
     }
@@ -58,9 +71,16 @@ public class CustomerDBProcess {
             preparedStatement.setString(4, customerDTO.getEmail());
             preparedStatement.setString(5, customerDTO.getCustomerId());
 
-            return preparedStatement.executeUpdate() != 0;
+            boolean result = preparedStatement.executeUpdate() != 0;
+            if (result) {
+                logger.info("Customer information updated successfully: {}", customerDTO.getCustomerId());
+            } else {
+                logger.error("Failed to update customer information: {}", customerDTO.getCustomerId());
+            }
+            return result;
 
         } catch (SQLException e) {
+            logger.error("Error updating customer information", e);
             throw new RuntimeException(e);
         }
     }
@@ -71,9 +91,16 @@ public class CustomerDBProcess {
             var preparedStatement = connection.prepareStatement(delete_customer);
             preparedStatement.setString(1, customerId);
 
-            return preparedStatement.executeUpdate() != 0;
+            boolean result = preparedStatement.executeUpdate() != 0;
+            if (result) {
+                logger.info("Customer information deleted successfully: {}", customerId);
+            } else {
+                logger.error("Failed to delete customer information: {}", customerId);
+            }
+            return result;
 
         } catch (SQLException e) {
+            logger.error("Error deleting customer information", e);
             throw new RuntimeException(e);
         }
     }
@@ -98,9 +125,11 @@ public class CustomerDBProcess {
                 customerDTOs.add(customerDTO);
             }
 
+            logger.info("Retrieved all customers successfully");
             return customerDTOs;
 
         } catch (SQLException e) {
+            logger.error("Error retrieving all customers", e);
             throw new RuntimeException(e);
         }
     }
@@ -112,17 +141,21 @@ public class CustomerDBProcess {
             preparedStatement.setString(1, customerId);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                return new CustomerDTO(
+                CustomerDTO customerDTO = new CustomerDTO(
                         resultSet.getString("customerId"),
                         resultSet.getString("name"),
                         resultSet.getString("address"),
                         resultSet.getString("contact"),
                         resultSet.getString("email")
                 );
+                logger.info("Retrieved customer successfully: {}", customerId);
+                return customerDTO;
             }
         } catch (SQLException e) {
+            logger.error("Error retrieving customer information", e);
             throw new RuntimeException(e);
         }
+        logger.warn("Customer not found: {}", customerId);
         return null;
     }
 
@@ -139,9 +172,11 @@ public class CustomerDBProcess {
                 customerIds.add(resultSet.getString("customerId"));
             }
 
+            logger.info("Retrieved all customer IDs successfully");
             return customerIds;
 
         } catch (SQLException e) {
+            logger.error("Error retrieving all customer IDs", e);
             throw new RuntimeException(e);
         }
     }

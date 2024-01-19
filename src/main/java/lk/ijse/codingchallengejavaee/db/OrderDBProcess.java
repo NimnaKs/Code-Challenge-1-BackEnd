@@ -10,9 +10,16 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
 public class OrderDBProcess {
 
-    final static Logger logger = LoggerFactory.getLogger(OrderDBProcess.class);
+    private static final Logger logger = LoggerFactory.getLogger(OrderDBProcess.class);
 
     public String generateOrderId(Connection connection) {
         try {
@@ -27,6 +34,7 @@ public class OrderDBProcess {
                     : "order-001";
 
         } catch (SQLException e) {
+            logger.error("Error generating order ID", e);
             throw new RuntimeException(e);
         }
     }
@@ -44,9 +52,9 @@ public class OrderDBProcess {
                         boolean isSavedItemDetails = new ItemDBProcess().updateItemOrder(orderDetailsDTO, connection);
 
                         if (!isSavedItemDetails) {
-                           return false;
+                            return false;
                         }
-                    }else{
+                    } else {
                         return false;
                     }
                 }
@@ -62,6 +70,7 @@ public class OrderDBProcess {
             } catch (SQLException rollbackException) {
                 throw new RuntimeException(rollbackException);
             }
+            logger.error("Error saving order", e);
             throw new RuntimeException(e);
         } finally {
             try {
@@ -73,20 +82,23 @@ public class OrderDBProcess {
     }
 
     private boolean save(OrderDTO orderDTO, Connection connection) throws SQLException {
+        String save_item = "INSERT INTO Orders (order_date, order_id, customer_id, total, discount, cash) VALUES  (?,?,?,?,?,?);";
 
-            String save_item = "INSERT INTO Orders (order_date, order_id, customer_id, total, discount, cash) VALUES  (?,?,?,?,?,?);";
+        var preparedStatement = connection.prepareStatement(save_item);
+        preparedStatement.setDate(1, Date.valueOf(orderDTO.getOrder_date()));
+        preparedStatement.setString(2, orderDTO.getOrder_id());
+        preparedStatement.setString(3, orderDTO.getCustomer_id());
+        preparedStatement.setDouble(4, orderDTO.getTotal());
+        preparedStatement.setDouble(5, orderDTO.getDiscount());
+        preparedStatement.setDouble(6, orderDTO.getCash());
 
-            var preparedStatement = connection.prepareStatement(save_item);
-            preparedStatement.setDate(1, Date.valueOf(orderDTO.getOrder_date()));
-            preparedStatement.setString(2, orderDTO.getOrder_id());
-            preparedStatement.setString(3, orderDTO.getCustomer_id());
-            preparedStatement.setDouble(4, orderDTO.getTotal());
-            preparedStatement.setDouble(5, orderDTO.getDiscount());
-            preparedStatement.setDouble(6, orderDTO.getCash());
-
-            return preparedStatement.executeUpdate() != 0;
-
-
+        boolean result = preparedStatement.executeUpdate() != 0;
+        if (result) {
+            logger.info("Order information saved successfully: {}", orderDTO.getOrder_id());
+        } else {
+            logger.error("Failed to save order information: {}", orderDTO.getOrder_id());
+        }
+        return result;
     }
 
     public boolean delete(String orderId, Connection connection) {
@@ -98,7 +110,7 @@ public class OrderDBProcess {
             for (OrderDetailsDTO orderDetailsDTO : orderDetailsDTOS) {
                 orderDetailsDTO.setQty(-orderDetailsDTO.getQty());
                 System.out.println(-orderDetailsDTO.getQty());
-                if(!new ItemDBProcess().updateItemOrder(orderDetailsDTO, connection)) {
+                if (!new ItemDBProcess().updateItemOrder(orderDetailsDTO, connection)) {
                     return false;
                 }
             }
@@ -119,6 +131,7 @@ public class OrderDBProcess {
             } catch (SQLException rollbackException) {
                 throw new RuntimeException(rollbackException);
             }
+            logger.error("Error deleting order", e);
             throw new RuntimeException(e);
         } finally {
             try {
@@ -131,9 +144,16 @@ public class OrderDBProcess {
 
     private boolean deleteOrder(String orderId, Connection connection) throws SQLException {
         String deleteOrderQuery = "DELETE FROM Orders WHERE order_id = ?;";
-            PreparedStatement deleteOrderStatement = connection.prepareStatement(deleteOrderQuery);
-            deleteOrderStatement.setString(1, orderId);
-            return deleteOrderStatement.executeUpdate() != 0;
+        PreparedStatement deleteOrderStatement = connection.prepareStatement(deleteOrderQuery);
+        deleteOrderStatement.setString(1, orderId);
+
+        boolean result = deleteOrderStatement.executeUpdate() != 0;
+        if (result) {
+            logger.info("Order information deleted successfully: {}", orderId);
+        } else {
+            logger.error("Failed to delete order information: {}", orderId);
+        }
+        return result;
     }
 
     public CombinedOrderDTO getOrder(String orderId, Connection connection) {
@@ -157,9 +177,10 @@ public class OrderDBProcess {
 
             ArrayList<OrderDetailsDTO> orderDetailsDTOS = new OrderDetailsDBProcess().getOrderDetails(orderId, connection);
 
-            return new CombinedOrderDTO(orderDTO,orderDetailsDTOS);
+            return new CombinedOrderDTO(orderDTO, orderDetailsDTOS);
 
         } catch (SQLException e) {
+            logger.error("Error retrieving order information", e);
             throw new RuntimeException(e);
         }
     }
@@ -171,7 +192,7 @@ public class OrderDBProcess {
             PreparedStatement getOrderStatement = connection.prepareStatement(getOrderQuery);
             ResultSet resultSet = getOrderStatement.executeQuery();
 
-            ArrayList<CombinedOrderDTO> combinedOrderDTOS=new ArrayList<>();
+            ArrayList<CombinedOrderDTO> combinedOrderDTOS = new ArrayList<>();
 
             while (resultSet.next()) {
                 OrderDTO orderDTO = new OrderDTO();
@@ -182,22 +203,22 @@ public class OrderDBProcess {
                 orderDTO.setDiscount(resultSet.getDouble("discount"));
                 orderDTO.setCash(resultSet.getDouble("cash"));
                 ArrayList<OrderDetailsDTO> orderDetailsDTOS = new OrderDetailsDBProcess().getOrderDetails(orderDTO.getOrder_id(), connection);
-                combinedOrderDTOS.add(new CombinedOrderDTO(orderDTO,orderDetailsDTOS));
+                combinedOrderDTOS.add(new CombinedOrderDTO(orderDTO, orderDetailsDTOS));
             }
 
-
+            logger.info("Retrieved all orders successfully");
             return combinedOrderDTOS;
 
         } catch (SQLException e) {
+            logger.error("Error retrieving all orders", e);
             throw new RuntimeException(e);
         }
     }
 
     public boolean updateOrder(CombinedOrderDTO combinedOrderDTO, Connection connection) {
-       if(delete(combinedOrderDTO.getOrderDTO().getOrder_id(),connection)){
-            return saveOrder(combinedOrderDTO,connection);
-       }
-       return false;
+        if (delete(combinedOrderDTO.getOrderDTO().getOrder_id(), connection)) {
+            return saveOrder(combinedOrderDTO, connection);
+        }
+        return false;
     }
-
 }

@@ -11,11 +11,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.*;
+import java.util.ArrayList;
+
 public class ItemDBProcess {
-    final static Logger logger = LoggerFactory.getLogger(ItemDBProcess.class);
+    private static final Logger logger = LoggerFactory.getLogger(ItemDBProcess.class);
 
     public boolean saveItem(ItemDTO itemModel, Connection connection) {
-
         try {
             String save_item = "INSERT INTO Item(item_code, item_name, price, qty_on_hand) VALUES (?,?,?,?);";
             var preparedStatement = connection.prepareStatement(save_item);
@@ -24,9 +29,16 @@ public class ItemDBProcess {
             preparedStatement.setDouble(3, itemModel.getPrice());
             preparedStatement.setInt(4, itemModel.getQty_on_hand());
 
-            return preparedStatement.executeUpdate() != 0;
+            boolean result = preparedStatement.executeUpdate() != 0;
+            if (result) {
+                logger.info("Item information saved successfully: {}", itemModel.getItem_code());
+            } else {
+                logger.error("Failed to save item information: {}", itemModel.getItem_code());
+            }
+            return result;
 
         } catch (SQLException e) {
+            logger.error("Error saving item information", e);
             throw new RuntimeException(e);
         }
     }
@@ -40,9 +52,16 @@ public class ItemDBProcess {
             preparedStatement.setInt(3, itemModel.getQty_on_hand());
             preparedStatement.setString(4, itemModel.getItem_code());
 
-            return preparedStatement.executeUpdate() != 0;
+            boolean result = preparedStatement.executeUpdate() != 0;
+            if (result) {
+                logger.info("Item information updated successfully: {}", itemModel.getItem_code());
+            } else {
+                logger.error("Failed to update item information: {}", itemModel.getItem_code());
+            }
+            return result;
 
         } catch (SQLException e) {
+            logger.error("Error updating item information", e);
             throw new RuntimeException(e);
         }
     }
@@ -53,9 +72,16 @@ public class ItemDBProcess {
             var preparedStatement = connection.prepareStatement(delete_item);
             preparedStatement.setString(1, itemCode);
 
-            return preparedStatement.executeUpdate() != 0;
+            boolean result = preparedStatement.executeUpdate() != 0;
+            if (result) {
+                logger.info("Item information deleted successfully: {}", itemCode);
+            } else {
+                logger.error("Failed to delete item information: {}", itemCode);
+            }
+            return result;
 
         } catch (SQLException e) {
+            logger.error("Error deleting item information", e);
             throw new RuntimeException(e);
         }
     }
@@ -79,9 +105,11 @@ public class ItemDBProcess {
                 itemModels.add(itemModel);
             }
 
+            logger.info("Retrieved all items successfully");
             return itemModels;
 
         } catch (SQLException e) {
+            logger.error("Error retrieving all items", e);
             throw new RuntimeException(e);
         }
     }
@@ -93,16 +121,20 @@ public class ItemDBProcess {
             preparedStatement.setString(1, itemCode);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                return new ItemDTO(
+                ItemDTO itemDTO = new ItemDTO(
                         resultSet.getString("item_code"),
                         resultSet.getString("item_name"),
                         resultSet.getInt("qty_on_hand"),
                         resultSet.getDouble("price")
                 );
+                logger.info("Retrieved item successfully: {}", itemCode);
+                return itemDTO;
             }
         } catch (SQLException e) {
+            logger.error("Error retrieving item information", e);
             throw new RuntimeException(e);
         }
+        logger.warn("Item not found: {}", itemCode);
         return null;
     }
 
@@ -119,6 +151,7 @@ public class ItemDBProcess {
                     : "item-001";
 
         } catch (SQLException e) {
+            logger.error("Error generating item code", e);
             throw new RuntimeException(e);
         }
     }
@@ -136,20 +169,34 @@ public class ItemDBProcess {
                 itemIds.add(resultSet.getString("item_code"));
             }
 
+            logger.info("Retrieved all item IDs successfully");
             return itemIds;
 
         } catch (SQLException e) {
+            logger.error("Error retrieving all item IDs", e);
             throw new RuntimeException(e);
         }
     }
 
-    public boolean updateItemOrder(OrderDetailsDTO orderDetailsDTO, Connection connection) throws SQLException {
-        String updateItemQtyQuery = "UPDATE Item SET qty_on_hand = qty_on_hand - ? WHERE item_code = ?;";
+    public boolean updateItemOrder(OrderDetailsDTO orderDetailsDTO, Connection connection) {
+        try {
+            String updateItemQtyQuery = "UPDATE Item SET qty_on_hand = qty_on_hand - ? WHERE item_code = ?;";
 
-        PreparedStatement updateItemQtyStatement = connection.prepareStatement(updateItemQtyQuery);
-        updateItemQtyStatement.setInt(1, orderDetailsDTO.getQty());
-        updateItemQtyStatement.setString(2, orderDetailsDTO.getItem_id());
-        return updateItemQtyStatement.executeUpdate() != 0;
+            PreparedStatement updateItemQtyStatement = connection.prepareStatement(updateItemQtyQuery);
+            updateItemQtyStatement.setInt(1, orderDetailsDTO.getQty());
+            updateItemQtyStatement.setString(2, orderDetailsDTO.getItem_id());
 
+            boolean result = updateItemQtyStatement.executeUpdate() != 0;
+            if (result) {
+                logger.info("Item quantity updated successfully for order: {}", orderDetailsDTO.getOrder_id());
+            } else {
+                logger.error("Failed to update item quantity for order: {}", orderDetailsDTO.getOrder_id());
+            }
+            return result;
+
+        } catch (SQLException e) {
+            logger.error("Error updating item quantity for order", e);
+            throw new RuntimeException(e);
+        }
     }
 }
