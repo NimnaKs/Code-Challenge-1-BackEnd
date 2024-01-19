@@ -44,10 +44,10 @@ public class OrderDBProcess {
                     if (isSavedOrderDetails) {
                         boolean isSavedItemDetails = new ItemDBProcess().updateItemOrder(orderDetailsDTO, connection);
 
-                        if (!isSavedItemDetails) {
+                        if (isSavedItemDetails) {
                             return false;
                         }
-                    } else {
+                    }else{
                         return false;
                     }
                 }
