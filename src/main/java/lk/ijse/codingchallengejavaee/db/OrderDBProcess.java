@@ -109,7 +109,6 @@ public class OrderDBProcess {
 
             for (OrderDetailsDTO orderDetailsDTO : orderDetailsDTOS) {
                 orderDetailsDTO.setQty(-orderDetailsDTO.getQty());
-                System.out.println(-orderDetailsDTO.getQty());
                 if (!new ItemDBProcess().updateItemOrder(orderDetailsDTO, connection)) {
                     return false;
                 }
