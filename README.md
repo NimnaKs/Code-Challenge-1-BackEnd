@@ -48,12 +48,48 @@ Follow these steps to set up and run the project locally:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/pos-backend.git
+git clone https://github.com/NimnaKs/Code-Challenge-1-BackEnd.git
 
 # Navigate to the project directory
-cd pos-backend
+cd Code-Challenge-1-BackEnd
 
 # Build and run the project
 mvn clean install
+
+## Project Structure
+
+/src
+|-- /main
+    |-- /java
+        |-- lk.ijse.codingchallengejavaee
+            |-- /api
+                |-- /Customer
+                |-- /Item
+                |-- /Order
+            |-- /db
+                |-- /CustomerDBProcess
+                |-- /ItemDBProcess
+                |-- /OrderDBProcess
+                |-- /OrderDetailsDBProcess
+            |-- /dto
+                |-- /CustomerDTO
+                |-- /ItemDTO
+                |-- /OrderDTO
+                |-- /OrderDetailsDTO
+                |-- /CombinedOrderDTO
+            |-- /filter
+                |-- /CROSFilter
+                |-- /SecurityFilter
+    |-- /resources
+        |-- /SQL
+            |-- /ShopPossQueries.SQL
+        |-- /logback.xml
+    |-- /webapp
+        |-- /META-INF
+            |-- /context.xml
+        |-- /WEB-INF
+            |-- /web.xml
+|-- /test
+
 
 
