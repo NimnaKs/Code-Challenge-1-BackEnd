@@ -23,7 +23,7 @@ public class OrderDBProcess {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             return (resultSet.next() && resultSet.getString("last_order_id") != null) ?
-                    "order-" + String.format("%03d", Integer.parseInt(resultSet.getString("last_item_code").substring(6)) + 1)
+                    "order-" + String.format("%03d", Integer.parseInt(resultSet.getString("last_order_id").substring(6)) + 1)
                     : "order-001";
 
         } catch (SQLException e) {
@@ -97,15 +97,17 @@ public class OrderDBProcess {
 
             for (OrderDetailsDTO orderDetailsDTO : orderDetailsDTOS) {
                 orderDetailsDTO.setQty(-orderDetailsDTO.getQty());
-                if(new ItemDBProcess().updateItemOrder(orderDetailsDTO, connection)) {
-                    if (new OrderDetailsDBProcess().deleteOrderDetails(orderId, connection)) {
-                        if (deleteOrder(orderId, connection)) {
-                            connection.commit();
-                            return true;
-                        }
-                    }
+                System.out.println(-orderDetailsDTO.getQty());
+                if(!new ItemDBProcess().updateItemOrder(orderDetailsDTO, connection)) {
+                    return false;
                 }
+            }
 
+            if (new OrderDetailsDBProcess().deleteOrderDetails(orderId, connection)) {
+                if (deleteOrder(orderId, connection)) {
+                    connection.commit();
+                    return true;
+                }
             }
 
             connection.rollback();
