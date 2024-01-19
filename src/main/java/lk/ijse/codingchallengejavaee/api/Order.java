@@ -3,15 +3,13 @@ package lk.ijse.codingchallengejavaee.api;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebInitParam;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lk.ijse.codingchallengejavaee.db.ItemDBProcess;
 import lk.ijse.codingchallengejavaee.db.OrderDBProcess;
 import lk.ijse.codingchallengejavaee.dto.CombinedOrderDTO;
-import lk.ijse.codingchallengejavaee.dto.ItemDTO;
+import lk.ijse.codingchallengejavaee.dto.OrderDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +19,9 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
-@WebServlet(name = "order",urlPatterns = "/order")
+@WebServlet(name = "order", urlPatterns = "/order")
 public class Order extends HttpServlet {
 
     final static Logger logger = LoggerFactory.getLogger(Order.class);
@@ -61,7 +60,19 @@ public class Order extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
+        String orderId = req.getParameter("orderId");
+        if (orderId != null) {
+            OrderDBProcess orderDBProcess = new OrderDBProcess();
+            boolean result = orderDBProcess.delete(orderId, connection);
+            if (result) {
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.getWriter().write("Order deleted successfully.");
+            } else {
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to delete order.");
+            }
+        } else {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing orderId parameter.");
+        }
     }
 
     @Override
@@ -82,6 +93,24 @@ public class Order extends HttpServlet {
     }
 
     private void getOrder(HttpServletRequest req, HttpServletResponse resp, String orderId) {
+        try {
+            if (orderId != null) {
+                OrderDBProcess orderDBProcess = new OrderDBProcess();
+                OrderDTO order = orderDBProcess.getOrder(orderId, connection);
+                if (order != null) {
+                    Jsonb jsonb = JsonbBuilder.create();
+                    String json = jsonb.toJson(order);
+                    resp.setContentType("application/json");
+                    resp.getWriter().write(json);
+                } else {
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Order not found.");
+                }
+            } else {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing orderId parameter.");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void generateOrderId(HttpServletRequest req, HttpServletResponse resp) {
@@ -99,10 +128,33 @@ public class Order extends HttpServlet {
     }
 
     private void getAllOrders(HttpServletRequest req, HttpServletResponse resp) {
+        try {
+            OrderDBProcess orderDBProcess = new OrderDBProcess();
+            List<OrderDTO> orders = orderDBProcess.getAllOrders(connection);
+            Jsonb jsonb = JsonbBuilder.create();
+            String json = jsonb.toJson(orders);
+            resp.setContentType("application/json");
+            resp.getWriter().write(json);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
+        if (req.getContentType() != null && req.getContentType().toLowerCase().startsWith("application/json")) {
+            Jsonb jsonb = JsonbBuilder.create();
+            CombinedOrderDTO combinedOrderDTO = jsonb.fromJson(req.getReader(), CombinedOrderDTO.class);
+            OrderDBProcess orderDBProcess = new OrderDBProcess();
+            boolean result = orderDBProcess.updateOrder(combinedOrderDTO, connection);
+            if (result) {
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.getWriter().write("Order information update successfully.");
+            } else {
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to update Order information.");
+            }
+        } else {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        }
     }
 }

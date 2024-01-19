@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class OrderDetailsDBProcess {
@@ -26,6 +27,17 @@ public class OrderDetailsDBProcess {
 
             return preparedStatement.executeUpdate() != 0;
 
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean deleteOrderDetails(String orderId, Connection connection) {
+        String deleteOrderDetailsQuery = "DELETE FROM OrderDetails WHERE order_id = ?;";
+        try {
+            PreparedStatement deleteOrderDetailsStatement = connection.prepareStatement(deleteOrderDetailsQuery);
+            deleteOrderDetailsStatement.setString(1, orderId);
+            return deleteOrderDetailsStatement.executeUpdate() != 0;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

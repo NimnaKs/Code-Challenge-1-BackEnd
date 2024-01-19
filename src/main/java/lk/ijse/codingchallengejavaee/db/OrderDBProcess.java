@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.util.List;
 
 public class OrderDBProcess {
 
@@ -91,4 +92,53 @@ public class OrderDBProcess {
         }
     }
 
+    public boolean delete(String orderId, Connection connection) {
+        try {
+            connection.setAutoCommit(false);
+
+            if(new OrderDetailsDBProcess().deleteOrderDetails(orderId,connection)){
+                if(deleteOrder(orderId,connection)){
+                    connection.commit();
+                    return true;
+                }
+            }
+
+            connection.rollback();
+            return false;
+
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackException) {
+                throw new RuntimeException(rollbackException);
+            }
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private boolean deleteOrder(String orderId, Connection connection) {
+        String deleteOrderQuery = "DELETE FROM Orders WHERE order_id = ?;";
+        try {
+            PreparedStatement deleteOrderStatement = connection.prepareStatement(deleteOrderQuery);
+            deleteOrderStatement.setString(1, orderId);
+            return deleteOrderStatement.executeUpdate() != 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public OrderDTO getOrder(String orderId, Connection connection) {
+    }
+
+    public List<OrderDTO> getAllOrders(Connection connection) {
+    }
+
+    public boolean updateOrder(CombinedOrderDTO combinedOrderDTO, Connection connection) {
+    }
 }
