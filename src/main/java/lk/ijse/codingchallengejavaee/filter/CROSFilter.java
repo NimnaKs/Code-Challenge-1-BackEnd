@@ -25,6 +25,8 @@ public class CROSFilter extends HttpFilter {
             res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT,DELETE, HEADER");
             res.setHeader("Access-Control-Allow-Headers", "Content-Type");
             res.setHeader("Access-Control-Expose-Headers", "Content-Type");
+
+            logger.info("CORS headers set for Origin: {}", origin);
         }
         chain.doFilter(req, res);
     }
