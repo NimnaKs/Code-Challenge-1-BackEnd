@@ -152,6 +152,29 @@ The project follows a modular structure, organized into packages based on functi
 
 Explore and interact with the API using [Postman](https://www.postman.com/avionics-astronaut-49946802/workspace/javaee-backend-poss/collection/30946779-1ee524ac-bc3e-4d75-af3d-e9063f97837b?action=share&creator=30946779)
 
+## API Endpoints
+
+Explore and interact with the API using [Postman](https://www.postman.com/avionics-astronaut-49946802/workspace/javaee-backend-poss/collection/30946779-5b7337a2-5621-48ce-ab63-12fe190b5860?action=share&creator=30946779).
+
+## Database Integration
+
+The project uses MySQL as the database. Execute the SQL script provided in the `SQL` folder to initialize the database.
+
+## Logging
+
+The application utilizes SLF4J and Logback for logging. You can configure the logging in the `logback.xml` file.
+
+## Testing
+
+The `test` directory contains placeholders for test-related classes, including unit tests and integration tests.
+
+## Contributing
+
+Feel free to contribute to the project. Fork the repository, make your changes, and submit a pull request.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
     
 
 
