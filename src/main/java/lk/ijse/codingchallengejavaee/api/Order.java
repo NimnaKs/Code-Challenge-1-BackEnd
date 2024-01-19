@@ -8,8 +8,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lk.ijse.codingchallengejavaee.db.OrderDBProcess;
+import lk.ijse.codingchallengejavaee.db.OrderDetailsDBProcess;
 import lk.ijse.codingchallengejavaee.dto.CombinedOrderDTO;
 import lk.ijse.codingchallengejavaee.dto.OrderDTO;
+import lk.ijse.codingchallengejavaee.dto.OrderDetailsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +21,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet(name = "order", urlPatterns = "/order")
@@ -96,7 +99,7 @@ public class Order extends HttpServlet {
         try {
             if (orderId != null) {
                 OrderDBProcess orderDBProcess = new OrderDBProcess();
-                OrderDTO order = orderDBProcess.getOrder(orderId, connection);
+                CombinedOrderDTO order = orderDBProcess.getOrder(orderId, connection);
                 if (order != null) {
                     Jsonb jsonb = JsonbBuilder.create();
                     String json = jsonb.toJson(order);
@@ -130,9 +133,9 @@ public class Order extends HttpServlet {
     private void getAllOrders(HttpServletRequest req, HttpServletResponse resp) {
         try {
             OrderDBProcess orderDBProcess = new OrderDBProcess();
-            List<OrderDTO> orders = orderDBProcess.getAllOrders(connection);
+            List<CombinedOrderDTO> allOrders = orderDBProcess.getAllOrders(connection);
             Jsonb jsonb = JsonbBuilder.create();
-            String json = jsonb.toJson(orders);
+            String json = jsonb.toJson(allOrders);
             resp.setContentType("application/json");
             resp.getWriter().write(json);
         } catch (IOException e) {

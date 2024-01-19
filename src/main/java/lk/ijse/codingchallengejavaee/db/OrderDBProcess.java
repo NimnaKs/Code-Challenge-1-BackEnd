@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OrderDBProcess {
@@ -96,11 +97,19 @@ public class OrderDBProcess {
         try {
             connection.setAutoCommit(false);
 
-            if(new OrderDetailsDBProcess().deleteOrderDetails(orderId,connection)){
-                if(deleteOrder(orderId,connection)){
-                    connection.commit();
-                    return true;
+            ArrayList<OrderDetailsDTO> orderDetailsDTOS = new OrderDetailsDBProcess().getOrderDetails(orderId, connection);
+
+            for (OrderDetailsDTO orderDetailsDTO : orderDetailsDTOS) {
+                orderDetailsDTO.setQty(-orderDetailsDTO.getQty());
+                if(new ItemDBProcess().updateItemOrder(orderDetailsDTO, connection)) {
+                    if (new OrderDetailsDBProcess().deleteOrderDetails(orderId, connection)) {
+                        if (deleteOrder(orderId, connection)) {
+                            connection.commit();
+                            return true;
+                        }
+                    }
                 }
+
             }
 
             connection.rollback();
@@ -133,12 +142,68 @@ public class OrderDBProcess {
         }
     }
 
-    public OrderDTO getOrder(String orderId, Connection connection) {
+    public CombinedOrderDTO getOrder(String orderId, Connection connection) {
+        try {
+            String getOrderQuery = "SELECT * FROM Orders WHERE order_id = ?;";
+
+            PreparedStatement getOrderStatement = connection.prepareStatement(getOrderQuery);
+            getOrderStatement.setString(1, orderId);
+            ResultSet resultSet = getOrderStatement.executeQuery();
+
+            OrderDTO orderDTO = new OrderDTO();
+
+            if (resultSet.next()) {
+                orderDTO.setOrder_date(String.valueOf(resultSet.getDate("order_date")));
+                orderDTO.setOrder_id(resultSet.getString("order_id"));
+                orderDTO.setCustomer_id(resultSet.getString("customer_id"));
+                orderDTO.setTotal(resultSet.getDouble("total"));
+                orderDTO.setDiscount(resultSet.getDouble("discount"));
+                orderDTO.setCash(resultSet.getDouble("cash"));
+            }
+
+            ArrayList<OrderDetailsDTO> orderDetailsDTOS = new OrderDetailsDBProcess().getOrderDetails(orderId, connection);
+
+            return new CombinedOrderDTO(orderDTO,orderDetailsDTOS);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public List<OrderDTO> getAllOrders(Connection connection) {
+    public List<CombinedOrderDTO> getAllOrders(Connection connection) {
+        try {
+            String getOrderQuery = "SELECT * FROM Orders;";
+
+            PreparedStatement getOrderStatement = connection.prepareStatement(getOrderQuery);
+            ResultSet resultSet = getOrderStatement.executeQuery();
+
+            ArrayList<CombinedOrderDTO> combinedOrderDTOS=new ArrayList<>();
+
+            while (resultSet.next()) {
+                OrderDTO orderDTO = new OrderDTO();
+                orderDTO.setOrder_date(String.valueOf(resultSet.getDate("order_date")));
+                orderDTO.setOrder_id(resultSet.getString("order_id"));
+                orderDTO.setCustomer_id(resultSet.getString("customer_id"));
+                orderDTO.setTotal(resultSet.getDouble("total"));
+                orderDTO.setDiscount(resultSet.getDouble("discount"));
+                orderDTO.setCash(resultSet.getDouble("cash"));
+                ArrayList<OrderDetailsDTO> orderDetailsDTOS = new OrderDetailsDBProcess().getOrderDetails(orderDTO.getOrder_id(), connection);
+                combinedOrderDTOS.add(new CombinedOrderDTO(orderDTO,orderDetailsDTOS));
+            }
+
+
+            return combinedOrderDTOS;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean updateOrder(CombinedOrderDTO combinedOrderDTO, Connection connection) {
+       if(delete(combinedOrderDTO.getOrderDTO().getOrder_id(),connection)){
+            return saveOrder(combinedOrderDTO,connection);
+       }
+       return false;
     }
+
 }

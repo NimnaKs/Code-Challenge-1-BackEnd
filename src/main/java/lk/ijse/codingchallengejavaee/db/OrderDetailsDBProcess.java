@@ -4,10 +4,8 @@ import lk.ijse.codingchallengejavaee.dto.OrderDetailsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
 
 public class OrderDetailsDBProcess {
 
@@ -42,4 +40,30 @@ public class OrderDetailsDBProcess {
             throw new RuntimeException(e);
         }
     }
+
+    public ArrayList<OrderDetailsDTO> getOrderDetails(String orderId, Connection connection) {
+        ArrayList<OrderDetailsDTO> orderDetailsList = new ArrayList<>();
+
+        try {
+            String getOrderDetailsQuery = "SELECT * FROM OrderDetails WHERE order_id = ?;";
+            try (PreparedStatement getOrderDetailsStatement = connection.prepareStatement(getOrderDetailsQuery)) {
+                getOrderDetailsStatement.setString(1, orderId);
+                ResultSet resultSet = getOrderDetailsStatement.executeQuery();
+
+                while (resultSet.next()) {
+                    OrderDetailsDTO orderDetailsDTO = new OrderDetailsDTO();
+                    orderDetailsDTO.setOrder_id(resultSet.getString("order_id"));
+                    orderDetailsDTO.setItem_id(resultSet.getString("item_id"));
+                    orderDetailsDTO.setPrice(resultSet.getDouble("price"));
+                    orderDetailsDTO.setQty(resultSet.getInt("qty"));
+                    orderDetailsList.add(orderDetailsDTO);
+                }
+            }
+            return orderDetailsList;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
