@@ -26,7 +26,7 @@
 
     <Resource name="jdbc/shopPoss" auth="Container" type="javax.sql.DataSource"
               maxTotal="10" maxIdle="8" maxWaitMillis="-1"
-              username="your-db-username" password="your-db-password" driverClassName="com.mysql.cj.jdbc.Driver"
+              username="root" password="ijse@200108" driverClassName="com.mysql.cj.jdbc.Driver"
               url="jdbc:mysql://localhost:3306/shopPoss?createDatabaseIfNotExist=true"/>
 
 </Context>

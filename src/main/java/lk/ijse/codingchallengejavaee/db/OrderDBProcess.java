@@ -215,9 +215,76 @@ public class OrderDBProcess {
     }
 
     public boolean updateOrder(CombinedOrderDTO combinedOrderDTO, Connection connection) {
-        if (delete(combinedOrderDTO.getOrderDTO().getOrder_id(), connection)) {
-            return saveOrder(combinedOrderDTO, connection);
+        try {
+            connection.setAutoCommit(false);
+
+            ArrayList<OrderDetailsDTO> orderDetailsDTOS = new OrderDetailsDBProcess().getOrderDetails(
+                    combinedOrderDTO.getOrderDTO().getOrder_id(), connection);
+
+            for (OrderDetailsDTO orderDetailsDTO : orderDetailsDTOS) {
+                orderDetailsDTO.setQty(-orderDetailsDTO.getQty());
+                if (!new ItemDBProcess().updateItemOrder(orderDetailsDTO, connection)) {
+                    return false;
+                }
+            }
+
+            if (update(combinedOrderDTO.getOrderDTO(), connection)) {
+
+                for (OrderDetailsDTO orderDetailsDTO : combinedOrderDTO.getOrderDetailsDTOS()) {
+                    boolean isUpdatedOrderDetails = new OrderDetailsDBProcess().updateOrderDetails(orderDetailsDTO, connection);
+
+                    if (isUpdatedOrderDetails) {
+                        boolean isUpdatedItemDetails = new ItemDBProcess().updateItemOrder(orderDetailsDTO, connection);
+
+                        if (!isUpdatedItemDetails) {
+                            return false;
+                        }
+
+                    } else {
+                        return false;
+                    }
+                }
+
+                connection.commit();
+                return true;
+            }
+
+            return false;
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackException) {
+                throw new RuntimeException(rollbackException);
+            }
+            logger.error("Error updating order", e);
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
-        return false;
     }
+
+    private boolean update(OrderDTO orderDTO, Connection connection) throws SQLException {
+        String update_item = "UPDATE Orders SET order_date=?, customer_id=?, total=?, discount=?, cash=? WHERE order_id=?;";
+
+        var preparedStatement = connection.prepareStatement(update_item);
+        preparedStatement.setDate(1, Date.valueOf(orderDTO.getOrder_date()));
+        preparedStatement.setString(2, orderDTO.getCustomer_id());
+        preparedStatement.setDouble(3, orderDTO.getTotal());
+        preparedStatement.setDouble(4, orderDTO.getDiscount());
+        preparedStatement.setDouble(5, orderDTO.getCash());
+        preparedStatement.setString(6, orderDTO.getOrder_id());
+
+        boolean result = preparedStatement.executeUpdate() != 0;
+        if (result) {
+            logger.info("Order information updated successfully: {}", orderDTO.getOrder_id());
+        } else {
+            logger.error("Failed to update order information: {}", orderDTO.getOrder_id());
+        }
+        return result;
+    }
+
 }

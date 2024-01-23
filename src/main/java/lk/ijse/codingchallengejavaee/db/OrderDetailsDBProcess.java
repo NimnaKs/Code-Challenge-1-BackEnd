@@ -94,4 +94,29 @@ public class OrderDetailsDBProcess {
             throw new RuntimeException(e);
         }
     }
+
+    public boolean updateOrderDetails(OrderDetailsDTO orderDetailsDTO, Connection connection) {
+        try {
+            String updateItem = "UPDATE OrderDetails SET price=?, qty=? WHERE order_id=? AND item_id=?;";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(updateItem)) {
+                preparedStatement.setDouble(1, orderDetailsDTO.getPrice());
+                preparedStatement.setInt(2, orderDetailsDTO.getQty());
+                preparedStatement.setString(3, orderDetailsDTO.getOrder_id());
+                preparedStatement.setString(4, orderDetailsDTO.getItem_id());
+
+                boolean result = preparedStatement.executeUpdate() != 0;
+                if (result) {
+                    logger.info("Order details updated successfully: OrderID={}, ItemID={}", orderDetailsDTO.getOrder_id(), orderDetailsDTO.getItem_id());
+                } else {
+                    logger.error("Failed to update order details: OrderID={}, ItemID={}", orderDetailsDTO.getOrder_id(), orderDetailsDTO.getItem_id());
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            logger.error("Error updating order details", e);
+            throw new RuntimeException(e);
+        }
+    }
+
 }
