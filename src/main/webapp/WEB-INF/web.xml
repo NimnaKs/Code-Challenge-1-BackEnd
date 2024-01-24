@@ -5,13 +5,8 @@
          version="5.0">
 
     <context-param>
-        <param-name>origin1</param-name>
+        <param-name>origin</param-name>
         <param-value>http://127.0.0.1:5500</param-value>
-    </context-param>
-
-    <context-param>
-        <param-name>origin2</param-name>
-        <param-value>https://nimnaks.github.io</param-value>
     </context-param>
 
     <filter>

@@ -19,8 +19,7 @@ public class CROSFilter extends HttpFilter {
     @Override
     protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
         String origin = req.getHeader("Origin");
-        if (origin != null && (origin.contains(getServletContext().getInitParameter("origin1")) ||
-                origin.contains(getServletContext().getInitParameter("origin2")))) {
+        if (origin != null && (origin.contains(getServletContext().getInitParameter("origin")))) {
             res.setHeader("Access-Control-Allow-Origin", origin);
             res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT,DELETE, HEADER");
             res.setHeader("Access-Control-Allow-Headers", "Content-Type");

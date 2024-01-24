@@ -1,3 +1,9 @@
+/*
+Project: Coding Challenge - 1
+Author: Nimna Kaveesha Sekara
+License: MIT (See the LICENSE file for details)
+*/
+
 package lk.ijse.codingchallengejavaee.api;
 
 import jakarta.json.bind.Jsonb;
