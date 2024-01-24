@@ -128,7 +128,7 @@ The project follows a modular structure, organized into packages based on functi
 
 1. **Database System:** MySQL
 2. **Schema Initialization:**
-   - Execute the SQL script provided in the [SQL folder](src/main/resources/SQLsrc/main/resources/SQLsrc/main/resources/SQL) to initialize the database.
+   - Execute the SQL script provided in the [SQL folder](src/main/resources/SQL) to initialize the database.
 
 3. **Database Connection:**
    - Configure your database username and password in the `src/resources/META-INF/context.xml` file.
